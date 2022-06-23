@@ -26,6 +26,7 @@ export function parse(
 
     const lines: string[] = text.split("\n");
     for (let i = 0; i < lines.length; i++) {
+        lines[i] = lines[i].replace(/[\r\n]/g, "");
         if (lines[i].length === 0) {
             if (cardType) {
                 cards.push([cardType, cardText, lineNo]);

@@ -320,6 +320,7 @@ export class FlashcardModal extends Modal {
         const dueString: string = due.format("YYYY-MM-DD");
 
         let fileText: string = await this.app.vault.read(this.currentCard.note);
+        fileText = fileText.replace(/[\r]/g, "");
         const replacementRegex = new RegExp(escapeRegexString(this.currentCard.cardText), "gm");
 
         let sep: string = this.plugin.data.settings.cardCommentOnSameLine ? " " : "\n";
