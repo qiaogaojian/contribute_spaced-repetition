@@ -41,7 +41,7 @@ export interface SRSettings {
 
 export const DEFAULT_SETTINGS: SRSettings = {
     // flashcards
-    flashcardTags: ["#flashcards"],
+    flashcardTags: ["#ankicard"],
     convertFoldersToDecks: false,
     cardCommentOnSameLine: false,
     burySiblingCards: false,
