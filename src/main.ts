@@ -52,7 +52,7 @@ export interface LinkStat {
 }
 
 export default class SRPlugin extends Plugin {
-    // private statusBar: HTMLElement;
+    private statusBar: HTMLElement;
     private reviewQueueView: ReviewQueueListView;
     public data: PluginData;
     public syncLock = false;
@@ -73,20 +73,21 @@ export default class SRPlugin extends Plugin {
     public cardStats: Stats;
 
     async onload(): Promise<void> {
+        console.log("reload spaced repetition.");
         await this.loadPluginData();
 
         appIcon();
 
-        // this.statusBar = this.addStatusBarItem();
-        // this.statusBar.classList.add("mod-clickable");
-        // this.statusBar.setAttribute("aria-label", t("OPEN_NOTE_FOR_REVIEW"));
-        // this.statusBar.setAttribute("aria-label-position", "top");
-        // this.statusBar.addEventListener("click", async () => {
-        //     if (!this.syncLock) {
-        //         await this.sync();
-        //         this.reviewNextNoteModal();
-        //     }
-        // });
+        this.statusBar = this.addStatusBarItem();
+        this.statusBar.classList.add("mod-clickable");
+        this.statusBar.setAttribute("aria-label", t("OPEN_NOTE_FOR_REVIEW"));
+        this.statusBar.setAttribute("aria-label-position", "top");
+        this.statusBar.addEventListener("click", async () => {
+            if (!this.syncLock) {
+                await this.sync();
+                new FlashcardModal(this.app, this).open();
+            }
+        });
 
         this.addRibbonIcon("SpacedRepIcon", t("REVIEW_CARDS"), async () => {
             if (!this.syncLock) {
@@ -408,12 +409,12 @@ export default class SRPlugin extends Plugin {
             );
         }
 
-        // this.statusBar.setText(
-        //     t("STATUS_BAR", {
-        //         dueNotesCount: this.dueNotesCount,
-        //         dueFlashcardsCount: this.deckTree.dueFlashcardsCount,
-        //     })
-        // );
+        this.statusBar.setText(
+            t("STATUS_BAR", {
+                dueNotesCount: this.dueNotesCount,
+                dueFlashcardsCount: this.deckTree.dueFlashcardsCount,
+            })
+        );
         this.reviewQueueView.redraw();
 
         this.syncLock = false;
