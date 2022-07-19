@@ -1,6 +1,6 @@
 {
     "settings": {
-        "flashcardTags": ["#ankicard"],
+        "flashcardTags": ["#srcard"],
         "convertFoldersToDecks": false,
         "cardCommentOnSameLine": false,
         "burySiblingCards": false,
