@@ -79,18 +79,29 @@ export class FlashcardModal extends Modal {
                     this.currentDeck.nextCard(this);
                 } else if (
                     this.mode === FlashcardModalMode.Front &&
-                    (e.code === "Space" || e.code === "Enter")
+                    (e.code === "Space" || e.code === "Enter" || e.code === "ArrowDown")
                 ) {
                     this.showAnswer();
                 } else if (this.mode === FlashcardModalMode.Back) {
-                    if (e.code === "Numpad1" || e.code === "Digit1") {
+                    if (e.code === "Numpad1" || e.code === "Digit1" || e.code === "ArrowLeft") {
                         this.processReview(ReviewResponse.Hard);
-                    } else if (e.code === "Numpad2" || e.code === "Digit2" || e.code === "Space") {
+                    } else if (
+                        e.code === "Numpad2" ||
+                        e.code === "Digit2" ||
+                        e.code === "Space" ||
+                        e.code === "ArrowDown"
+                    ) {
                         this.processReview(ReviewResponse.Good);
-                    } else if (e.code === "Numpad3" || e.code === "Digit3") {
+                    } else if (
+                        e.code === "Numpad3" ||
+                        e.code === "Digit3" ||
+                        e.code === "ArrowRight"
+                    ) {
                         this.processReview(ReviewResponse.Easy);
                     } else if (e.code === "Numpad0" || e.code === "Digit0") {
                         this.processReview(ReviewResponse.Reset);
+                    } else if (e.code === "ArrowUp") {
+                        this.editLater();
                     }
                 }
             }
@@ -248,6 +259,28 @@ export class FlashcardModal extends Modal {
         }
 
         this.renderMarkdownWrapper(this.currentCard.back, this.flashcardView);
+    }
+
+    async editLater(): Promise<void> {
+        const activeLeaf: WorkspaceLeaf = this.plugin.app.workspace.activeLeaf;
+        if (this.plugin.app.workspace.getActiveFile() === null)
+            await activeLeaf.openFile(this.currentCard.note);
+        else {
+            const newLeaf = this.plugin.app.workspace.createLeafBySplit(
+                activeLeaf,
+                "vertical",
+                false
+            );
+            await newLeaf.openFile(this.currentCard.note, { active: true });
+        }
+        const activeView: MarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+        activeView.editor.setCursor({
+            line: this.currentCard.lineNo,
+            ch: 0,
+        });
+        this.currentDeck.deleteFlashcardAtIndex(this.currentCardIdx, this.currentCard.isDue);
+        this.burySiblingCards(false);
+        this.currentDeck.nextCard(this);
     }
 
     async processReview(response: ReviewResponse): Promise<void> {
