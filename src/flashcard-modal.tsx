@@ -51,6 +51,9 @@ export class FlashcardModal extends Modal {
     public ignoreStats: boolean;
 
     constructor(app: App, plugin: SRPlugin, ignoreStats = false) {
+        console.log(
+            "********************************* FlashcardModal constructor start *********************************"
+        );
         super(app);
 
         this.plugin = plugin;
@@ -106,14 +109,23 @@ export class FlashcardModal extends Modal {
                 }
             }
         };
+        console.log(
+            "********************************* FlashcardModal constructor end*********************************"
+        );
     }
 
     onOpen(): void {
         this.decksList();
+        console.log(
+            "********************************* FlashcardModal onOpen *********************************"
+        );
     }
 
     onClose(): void {
         this.mode = FlashcardModalMode.Closed;
+        console.log(
+            "********************************* FlashcardModal onClose *********************************"
+        );
     }
 
     decksList(): void {

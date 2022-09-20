@@ -83,16 +83,34 @@ export default class SRPlugin extends Plugin {
         this.statusBar.setAttribute("aria-label", t("OPEN_NOTE_FOR_REVIEW"));
         this.statusBar.setAttribute("aria-label-position", "top");
         this.statusBar.addEventListener("click", async () => {
+            console.log(
+                "********************************* statusBar open FlashcardModal*********************************1"
+            );
             if (!this.syncLock) {
                 await this.sync();
+                console.log(
+                    "********************************* statusBar open FlashcardModal*********************************2"
+                );
                 new FlashcardModal(this.app, this).open();
+                console.log(
+                    "********************************* statusBar open FlashcardModal*********************************3"
+                );
             }
         });
 
         this.addRibbonIcon("SpacedRepIcon", t("REVIEW_CARDS"), async () => {
+            console.log(
+                "********************************* RibbonIcon open FlashcardModal*********************************1"
+            );
             if (!this.syncLock) {
                 await this.sync();
+                console.log(
+                    "********************************* RibbonIcon open FlashcardModal*********************************2"
+                );
                 new FlashcardModal(this.app, this).open();
+                console.log(
+                    "********************************* RibbonIcon open FlashcardModal*********************************3"
+                );
             }
         });
 
@@ -181,9 +199,22 @@ export default class SRPlugin extends Plugin {
             id: "srs-review-flashcards",
             name: t("REVIEW_ALL_CARDS"),
             callback: async () => {
+                console.log(
+                    "********************************* REVIEW_ALL_CARDS *********************************"
+                );
+
                 if (!this.syncLock) {
+                    console.log(
+                        "********************************* Command REVIEW_ALL_CARDS open FlashcardModal*********************************1"
+                    );
                     await this.sync();
+                    console.log(
+                        "********************************* Command REVIEW_ALL_CARDS open FlashcardModal*********************************2"
+                    );
                     new FlashcardModal(this.app, this).open();
+                    console.log(
+                        "********************************* Command REVIEW_ALL_CARDS open FlashcardModal*********************************3"
+                    );
                 }
             },
         });
@@ -192,12 +223,25 @@ export default class SRPlugin extends Plugin {
             id: "srs-review-flashcards-in-note",
             name: t("REVIEW_CARDS_IN_NOTE"),
             callback: async () => {
+                console.log(
+                    "********************************* REVIEW_CARDS_IN_NOTE *********************************"
+                );
+
                 const openFile: TFile | null = this.app.workspace.getActiveFile();
                 if (openFile && openFile.extension === "md") {
                     this.deckTree = new Deck("root", null);
                     const deckPath: string[] = this.findDeckPath(openFile);
+                    console.log(
+                        "********************************* Command REVIEW_CARDS_IN_NOTE open FlashcardModal*********************************1"
+                    );
                     await this.findFlashcardsInNote(openFile, deckPath);
+                    console.log(
+                        "********************************* Command REVIEW_CARDS_IN_NOTE open FlashcardModal*********************************2"
+                    );
                     new FlashcardModal(this.app, this).open();
+                    console.log(
+                        "********************************* Command REVIEW_CARDS_IN_NOTE open FlashcardModal*********************************3"
+                    );
                 }
             },
         });
@@ -206,12 +250,25 @@ export default class SRPlugin extends Plugin {
             id: "srs-cram-flashcards-in-note",
             name: t("CRAM_CARDS_IN_NOTE"),
             callback: async () => {
+                console.log(
+                    "********************************* CRAM_CARDS_IN_NOTE *********************************"
+                );
+
                 const openFile: TFile | null = this.app.workspace.getActiveFile();
                 if (openFile && openFile.extension === "md") {
                     this.deckTree = new Deck("root", null);
                     const deckPath: string[] = this.findDeckPath(openFile);
+                    console.log(
+                        "********************************* Command CRAM_CARDS_IN_NOTE open FlashcardModal*********************************1"
+                    );
                     await this.findFlashcardsInNote(openFile, deckPath, false, true);
+                    console.log(
+                        "********************************* Command CRAM_CARDS_IN_NOTE open FlashcardModal*********************************2"
+                    );
                     new FlashcardModal(this.app, this, true).open();
+                    console.log(
+                        "********************************* Command CRAM_CARDS_IN_NOTE open FlashcardModal*********************************3"
+                    );
                 }
             },
         });
