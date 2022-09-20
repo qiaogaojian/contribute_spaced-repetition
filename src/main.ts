@@ -344,6 +344,8 @@ export default class SRPlugin extends Plugin {
                 continue;
             }
 
+            console.log("sync(): " + note.path);
+
             if (this.incomingLinks[note.path] === undefined) {
                 this.incomingLinks[note.path] = [];
             }
