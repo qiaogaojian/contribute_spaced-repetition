@@ -78,6 +78,30 @@ export default class SRPlugin extends Plugin {
 
         appIcon();
 
+        this.initStatusbar()
+
+        // 注册自定义视图 leaf 代表窗口对象,每个笔记文件就是一个leaf
+        this.registerView(REVIEW_QUEUE_VIEW_TYPE, (leaf) => (this.reviewQueueView = new ReviewQueueListView(leaf, this)));
+
+        this.initFileMenu()
+        this.registe_command();
+        this.addSettingTab(new SRSettingTab(this.app, this));
+
+        this.app.workspace.onLayoutReady(() => {
+            this.initView();
+            setTimeout(async () => {
+                if (!this.syncLock) {
+                    await this.sync();
+                }
+            }, 2000);
+        });
+    }
+
+    onunload(): void {
+        this.app.workspace.getLeavesOfType(REVIEW_QUEUE_VIEW_TYPE).forEach((leaf) => leaf.detach());
+    }
+
+    async initStatusbar(){
         this.statusBar = this.addStatusBarItem();
         this.statusBar.classList.add("mod-clickable");
         this.statusBar.setAttribute("aria-label", t("OPEN_NOTE_FOR_REVIEW"));
@@ -101,10 +125,9 @@ export default class SRPlugin extends Plugin {
                 console.log("********************************* RibbonIcon open FlashcardModal *********************************3");
             }
         });
+    }
 
-        // 注册自定义视图 leaf 代表窗口对象,每个笔记文件就是一个leaf
-        this.registerView(REVIEW_QUEUE_VIEW_TYPE, (leaf) => (this.reviewQueueView = new ReviewQueueListView(leaf, this)));
-
+    initFileMenu(){
         if (!this.data.settings.disableFileMenuReviewOptions) {
             this.registerEvent(
                 this.app.workspace.on("file-menu", (menu, fileish: TAbstractFile) => {
@@ -136,23 +159,6 @@ export default class SRPlugin extends Plugin {
                 })
             );
         }
-
-
-        this.registe_command();
-        this.addSettingTab(new SRSettingTab(this.app, this));
-
-        this.app.workspace.onLayoutReady(() => {
-            this.initView();
-            setTimeout(async () => {
-                if (!this.syncLock) {
-                    await this.sync();
-                }
-            }, 2000);
-        });
-    }
-
-    onunload(): void {
-        this.app.workspace.getLeavesOfType(REVIEW_QUEUE_VIEW_TYPE).forEach((leaf) => leaf.detach());
     }
 
     registe_command() {
