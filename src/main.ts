@@ -5,7 +5,7 @@ import {
     TFile,
     HeadingCache,
     getAllTags,
-    FrontMatterCache,
+    FrontMatterCache
 } from "obsidian";
 import * as graph from "pagerank.js";
 
@@ -18,7 +18,7 @@ import {
     YAML_FRONT_MATTER_REGEX,
     SCHEDULING_INFO_REGEX,
     LEGACY_SCHEDULING_EXTRACTOR,
-    MULTI_SCHEDULING_EXTRACTOR,
+    MULTI_SCHEDULING_EXTRACTOR
 } from "src/constants";
 import { escapeRegexString, cyrb53 } from "src/utils";
 import { ReviewDeck, ReviewDeckSelectionModal } from "src/review-deck";
@@ -38,7 +38,7 @@ interface PluginData {
 const DEFAULT_DATA: PluginData = {
     settings: DEFAULT_SETTINGS,
     buryDate: "",
-    buryList: [],
+    buryList: []
 };
 
 export interface SchedNote {
@@ -83,41 +83,27 @@ export default class SRPlugin extends Plugin {
         this.statusBar.setAttribute("aria-label", t("OPEN_NOTE_FOR_REVIEW"));
         this.statusBar.setAttribute("aria-label-position", "top");
         this.statusBar.addEventListener("click", async () => {
-            console.log(
-                "********************************* statusBar open FlashcardModal*********************************1"
-            );
+            console.log("********************************* statusBar open FlashcardModal *********************************1");
             if (!this.syncLock) {
                 await this.sync();
-                console.log(
-                    "********************************* statusBar open FlashcardModal*********************************2"
-                );
+                console.log("********************************* statusBar open FlashcardModal *********************************2");
                 new FlashcardModal(this.app, this).open();
-                console.log(
-                    "********************************* statusBar open FlashcardModal*********************************3"
-                );
+                console.log("********************************* statusBar open FlashcardModal *********************************3");
             }
         });
 
         this.addRibbonIcon("SpacedRepIcon", t("REVIEW_CARDS"), async () => {
-            console.log(
-                "********************************* RibbonIcon open FlashcardModal*********************************1"
-            );
+            console.log("********************************* RibbonIcon open FlashcardModal *********************************1");
             if (!this.syncLock) {
                 await this.sync();
-                console.log(
-                    "********************************* RibbonIcon open FlashcardModal*********************************2"
-                );
+                console.log("********************************* RibbonIcon open FlashcardModal *********************************2");
                 new FlashcardModal(this.app, this).open();
-                console.log(
-                    "********************************* RibbonIcon open FlashcardModal*********************************3"
-                );
+                console.log("********************************* RibbonIcon open FlashcardModal *********************************3");
             }
         });
 
-        this.registerView(
-            REVIEW_QUEUE_VIEW_TYPE,
-            (leaf) => (this.reviewQueueView = new ReviewQueueListView(leaf, this))
-        );
+        // 注册自定义视图 leaf 代表窗口对象,每个笔记文件就是一个leaf
+        this.registerView(REVIEW_QUEUE_VIEW_TYPE, (leaf) => (this.reviewQueueView = new ReviewQueueListView(leaf, this)));
 
         if (!this.data.settings.disableFileMenuReviewOptions) {
             this.registerEvent(
@@ -151,6 +137,25 @@ export default class SRPlugin extends Plugin {
             );
         }
 
+
+        this.registe_command();
+        this.addSettingTab(new SRSettingTab(this.app, this));
+
+        this.app.workspace.onLayoutReady(() => {
+            this.initView();
+            setTimeout(async () => {
+                if (!this.syncLock) {
+                    await this.sync();
+                }
+            }, 2000);
+        });
+    }
+
+    onunload(): void {
+        this.app.workspace.getLeavesOfType(REVIEW_QUEUE_VIEW_TYPE).forEach((leaf) => leaf.detach());
+    }
+
+    registe_command() {
         this.addCommand({
             id: "srs-note-review-open-note",
             name: t("OPEN_NOTE_FOR_REVIEW"),
@@ -159,7 +164,7 @@ export default class SRPlugin extends Plugin {
                     await this.sync();
                     this.reviewNextNoteModal();
                 }
-            },
+            }
         });
 
         this.addCommand({
@@ -170,7 +175,7 @@ export default class SRPlugin extends Plugin {
                 if (openFile && openFile.extension === "md") {
                     this.saveReviewResponse(openFile, ReviewResponse.Easy);
                 }
-            },
+            }
         });
 
         this.addCommand({
@@ -181,7 +186,7 @@ export default class SRPlugin extends Plugin {
                 if (openFile && openFile.extension === "md") {
                     this.saveReviewResponse(openFile, ReviewResponse.Good);
                 }
-            },
+            }
         });
 
         this.addCommand({
@@ -192,7 +197,7 @@ export default class SRPlugin extends Plugin {
                 if (openFile && openFile.extension === "md") {
                     this.saveReviewResponse(openFile, ReviewResponse.Hard);
                 }
-            },
+            }
         });
 
         this.addCommand({
@@ -216,7 +221,7 @@ export default class SRPlugin extends Plugin {
                         "********************************* Command REVIEW_ALL_CARDS open FlashcardModal*********************************3"
                     );
                 }
-            },
+            }
         });
 
         this.addCommand({
@@ -243,7 +248,7 @@ export default class SRPlugin extends Plugin {
                         "********************************* Command REVIEW_CARDS_IN_NOTE open FlashcardModal*********************************3"
                     );
                 }
-            },
+            }
         });
 
         this.addCommand({
@@ -270,7 +275,7 @@ export default class SRPlugin extends Plugin {
                         "********************************* Command CRAM_CARDS_IN_NOTE open FlashcardModal*********************************3"
                     );
                 }
-            },
+            }
         });
 
         this.addCommand({
@@ -281,23 +286,8 @@ export default class SRPlugin extends Plugin {
                     await this.sync();
                     new StatsModal(this.app, this).open();
                 }
-            },
+            }
         });
-
-        this.addSettingTab(new SRSettingTab(this.app, this));
-
-        this.app.workspace.onLayoutReady(() => {
-            this.initView();
-            setTimeout(async () => {
-                if (!this.syncLock) {
-                    await this.sync();
-                }
-            }, 2000);
-        });
-    }
-
-    onunload(): void {
-        this.app.workspace.getLeavesOfType(REVIEW_QUEUE_VIEW_TYPE).forEach((leaf) => leaf.detach());
     }
 
     async sync(): Promise<void> {
@@ -323,7 +313,7 @@ export default class SRPlugin extends Plugin {
             intervals: {},
             newCount: 0,
             youngCount: 0,
-            matureCount: 0,
+            matureCount: 0
         };
 
         const now = window.moment(Date.now());
@@ -359,7 +349,7 @@ export default class SRPlugin extends Plugin {
                 if (targetPath.split(".").pop().toLowerCase() === "md") {
                     this.incomingLinks[targetPath].push({
                         sourcePath: note.path,
-                        linkCount: links[targetPath],
+                        linkCount: links[targetPath]
                     });
 
                     graph.link(note.path, targetPath, links[targetPath]);
@@ -462,16 +452,16 @@ export default class SRPlugin extends Plugin {
         if (this.data.settings.showDebugMessages) {
             console.log(
                 "SR: " +
-                    t("SYNC_TIME_TAKEN", {
-                        t: Date.now() - now.valueOf(),
-                    })
+                t("SYNC_TIME_TAKEN", {
+                    t: Date.now() - now.valueOf()
+                })
             );
         }
 
         this.statusBar.setText(
             t("STATUS_BAR", {
                 dueNotesCount: this.dueNotesCount,
-                dueFlashcardsCount: this.deckTree.dueFlashcardsCount,
+                dueFlashcardsCount: this.deckTree.dueFlashcardsCount
             })
         );
         this.reviewQueueView.redraw();
@@ -587,8 +577,8 @@ export default class SRPlugin extends Plugin {
             fileText = fileText.replace(
                 SCHEDULING_INFO_REGEX,
                 `---\n${schedulingInfo[1]}sr-due: ${dueString}\n` +
-                    `sr-interval: ${interval}\nsr-ease: ${ease}\n` +
-                    `${schedulingInfo[5]}---`
+                `sr-interval: ${interval}\nsr-ease: ${ease}\n` +
+                `${schedulingInfo[5]}---`
             );
         } else if (YAML_FRONT_MATTER_REGEX.test(fileText)) {
             // new note with existing YAML front matter
@@ -596,7 +586,7 @@ export default class SRPlugin extends Plugin {
             fileText = fileText.replace(
                 YAML_FRONT_MATTER_REGEX,
                 `---\n${existingYaml[1]}sr-due: ${dueString}\n` +
-                    `sr-interval: ${interval}\nsr-ease: ${ease}\n---`
+                `sr-interval: ${interval}\nsr-ease: ${ease}\n---`
             );
         } else {
             fileText =
@@ -778,7 +768,7 @@ export default class SRPlugin extends Plugin {
                     idx = cardText.indexOf(settings.singlelineCardSeparator);
                     siblingMatches.push([
                         cardText.substring(0, idx),
-                        cardText.substring(idx + settings.singlelineCardSeparator.length),
+                        cardText.substring(idx + settings.singlelineCardSeparator.length)
                     ]);
                 } else if (cardType === CardType.SingleLineReversed) {
                     idx = cardText.indexOf(settings.singlelineReversedCardSeparator);
@@ -792,7 +782,7 @@ export default class SRPlugin extends Plugin {
                     idx = cardText.indexOf("\n" + settings.multilineCardSeparator + "\n");
                     siblingMatches.push([
                         cardText.substring(0, idx),
-                        cardText.substring(idx + 2 + settings.multilineCardSeparator.length),
+                        cardText.substring(idx + 2 + settings.multilineCardSeparator.length)
                     ]);
                 } else if (cardType === CardType.MultiLineReversed) {
                     idx = cardText.indexOf("\n" + settings.multilineReversedCardSeparator + "\n");
@@ -840,7 +830,7 @@ export default class SRPlugin extends Plugin {
                     context,
                     cardType,
                     siblingIdx: i,
-                    siblings,
+                    siblings
                 };
 
                 // card scheduled
@@ -939,7 +929,7 @@ export default class SRPlugin extends Plugin {
 
         this.app.workspace.getRightLeaf(false).setViewState({
             type: REVIEW_QUEUE_VIEW_TYPE,
-            active: true,
+            active: true
         });
     }
 }
