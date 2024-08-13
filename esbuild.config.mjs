@@ -14,7 +14,8 @@ const context = await esbuild.context({
     sourcemap: "inline",
     sourcesContent: !prod,
     treeShaking: true,
-    outfile: "build/main.js",
+    // outfile: "build/main.js",
+    outfile: "D:/Git/note/obsidian/.obsidian/plugins/obsidian-spaced-repetition/main.js",
 });
 
 if (prod) {
