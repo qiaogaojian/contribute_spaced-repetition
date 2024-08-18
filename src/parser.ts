@@ -20,6 +20,26 @@ export class ParsedQuestionInfo {
     }
 }
 
+
+function removeSpaces(input: string): string {
+    // 分割字符串为行
+    const lines = input.split('\n');
+
+    // 处理每一行
+    const processedLines = lines.map(line => {
+        // 检查行是否以空格后跟 "ooo" 开始
+        if (/^\s+```/.test(line)) {
+            // 去掉行首空格
+            return line.trimStart();
+        } else {
+            // 保持行不变
+            return line;
+        }
+    });
+
+    // 将处理后的行重新组合成字符串
+    return processedLines.join('\n');
+}
 /**
  * Returns flashcards found in `text`
  *
@@ -53,9 +73,16 @@ export function parseEx(
     let firstLineNo = 0;
     let lastLineNo = 0;
 
+    text = removeSpaces(text)
     const lines: string[] = text.replaceAll("\r\n", "\n").split("\n");
     for (let i = 0; i < lines.length; i++) {
-        const currentLine = lines[i];
+        const pattern = /^\s+```/g; // 正则表达式匹配以空格开头的```
+        const line = lines[i];
+        let currentLine = line
+        if (pattern.test(line)) {
+            // 如果行匹配正则表达式，则去掉前面的空格
+            currentLine =  line.replace(pattern, '```');
+        }
         if (currentLine.length === 0) {
             if (cardType) {
                 lastLineNo = i - 1;
